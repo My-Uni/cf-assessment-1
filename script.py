@@ -8,7 +8,7 @@ import os
 conn = sqlite3.connect('swe4207.db')
 cursor = conn.cursor()
 
-#   Private Functions
+#   SQL Functions
 def create_tables():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS user (
@@ -19,6 +19,7 @@ def create_tables():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS customer (
             customerid INTEGER PRIMARY KEY AUTOINCREMENT,
+            customerusername TEXT NOT NULL UNIQUE,
             forename TEXT NOT NULL,
             surname TEXT,
             dob TEXT NOT NULL
@@ -58,6 +59,8 @@ def create_tables():
         );
     ''')
 
+#   User Functions
+
 def _create_user():
     while True:
         username = input('Enter new users username: ')
@@ -92,6 +95,8 @@ user = {
     'create': _create_user,
     'login': _login
 } 
+
+#   Menus
 
 def _main_menu():
     os.system('clear')
@@ -150,13 +155,13 @@ def _customers_menu():
             user_choice = int(user_choice)
             print(user_choice)
             if user_choice == 1:
-                #   Create new Customer
+                customer['create']()
                 break
             elif user_choice == 2:
-                #   View Customer Details
+                customer['view']()
                 break
             elif user_choice == 3:
-                #   Update Customer Details
+                customer['update']()
                 break
             elif user_choice == 4:
                 display_menu['main']()
@@ -171,12 +176,66 @@ display_menu = {
     'customers': _customers_menu
 }
 
+#   Customer Functions
+
+def _create_customer():
+    while True:
+        forename = input('Enter new customers forename: ')
+        lastname = input('Enter new customers last name: ')
+        dob = input('Enter new customers date of birth (MM-DD-YYYY): ')
+        username = forename[0] + lastname + dob[2:4]
+        
+        try:
+            cursor.execute('''INSERT INTO customer (customerusername, forename, surname, dob) VALUES (?, ?, ?)''', (username, forename, lastname, dob))
+            conn.commit()
+            print(f'Customer ({username}) created successfully with id {cursor.lastrowid}')
+            break
+        except:
+            print(f'Username ({username}) already exists, try again\n')
+
+def _view_customer():
+    while True:
+        customerusername = input('Enter customer username: ')
+        try:
+            cursor.execute('''SELECT * FROM customer WHERE customerusername = ?''', (customerusername,))
+            customer = cursor.fetchone()
+            print(f'''
+Customer ID: {customer[0]}
+Customer Username: {customer[1]}
+Forename: {customer[2]}
+Surname: {customer[3]}
+Date of Birth: {customer[4]}
+            ''')
+            break
+        except:
+            print(f'Customer ({customerusername}) does not exist, try again\n')
+
+def _update_customer():
+    while True:
+        customerusername = input('Enter customer username: ')
+        collumn = input('What would you like to update? : ')
+        value = input('Enter new value: ')
+
+        try:
+            cursor.execute(f'''UPDATE customer SET {collumn} = ? WHERE customerusername = ?''', (value, customerusername))
+            conn.commit()
+            print(f'Customer ({customerusername}) has been updated successfully\n ')
+            break
+        except:
+            print(f'Customer ({customerusername}) does not exist, try again\n')
+            
+customer = {
+    'create': _create_customer,
+    'view': _view_customer,
+    'update': _update_customer
+}
+
 #   Initializing
 #   Create Tables in the case that this is a fresh install
 create_tables()
 
 #   Default account, only run if it is a fresh install
-    #cursor.execute('''INSERT INTO user (username, password) VALUES (?, ?)''', ('root', bcrypt.hashpw('root'.encode('utf-8'), bcrypt.gensalt())))
-    #conn.commit()
+#cursor.execute('''INSERT INTO user (username, password) VALUES (?, ?)''', ('root', bcrypt.hashpw('root'.encode('utf-8'), bcrypt.gensalt())))
+#conn.commit()
 
 user['login']()
