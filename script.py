@@ -1,3 +1,13 @@
+#################################
+#
+#   SWE4207 - Assignment 1
+#
+#   Name: Morgan Dale 
+#   Student ID: 2207481
+#   Date Updated: 11-01-2023
+#
+#################################
+
 #   Imports
 import datetime
 from prettytable import PrettyTable
@@ -15,6 +25,8 @@ cursor = conn.cursor()
 #   SQL Functions   #
 #####################
 
+# This function will create all tables nessesary for the program to work, if they do not exist
+
 def create_tables():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS user (
@@ -29,7 +41,9 @@ def create_tables():
             customerusername TEXT NOT NULL UNIQUE,
             forename TEXT NOT NULL,
             surname TEXT,
-            dob DATE NOT NULL
+            dob DATE NOT NULL,
+            addressid INTEGER NOT NULL,
+            FOREIGN KEY(addressid) REFERENCES address(addressid)
         );
     ''')
     cursor.execute('''
@@ -37,11 +51,9 @@ def create_tables():
             addressid INTEGER PRIMARY KEY AUTOINCREMENT,
             streetnumber TEXT,
             firstline TEXT NOT NULL,
-            postcode TEXT,
+            postcode TEXT NOT NULL,
             region TEXT NOT NULL,
-            country TEXT NOT NULL,
-            customerid INTEGER NOT NULL,
-            FOREIGN KEY(customerid) REFERENCES customer(customerid)
+            country TEXT NOT NULL
         );
     ''')
     cursor.execute('''
@@ -71,12 +83,17 @@ def create_tables():
 #   Menus   #
 #############
 
+#   The following Functions will display the corresponding menu (named specifically for each menu type)
+#   ONLY comments will be made on the FIRST MENU to describe each function as each menu is repetative
+
 def _main_menu():
+    # Clears the screen & display the menu title
     os.system('clear')
     print("".center(80, "*"))
     print(" MAIN MENU ".center(80, "*"))
     print("".center(80, "*"))
 
+    # Displays the menu options
     print('''\n
 [1] Customers
 [2] Users
@@ -86,12 +103,15 @@ def _main_menu():
 [6] Logout & Exit
     ''')
 
+    # Loops until a valid option is chosen
     while True:
         user_choice = input()
 
+        # Trys to convert the user input to an integer, if it fails, the user has entered an invalid option
         try:
             user_choice = int(user_choice)
-            print(user_choice)
+
+            # If the user has chosen a valid option, then it will call the corresponding function
             if user_choice == 1:
                 display_menu['customers']()
                 break
@@ -127,8 +147,9 @@ def _customers_menu():
 [2] View Customer Details
 [3] View ALL Customer Details
 [4] Update Customer Details
-[5] Delete Customer
-[6] Main Menu
+[5] Update Customer Address Details
+[6] Delete Customer
+[7] Main Menu
     ''')
 
     while True:
@@ -150,9 +171,12 @@ def _customers_menu():
                 customer['update']()
                 break
             elif user_choice == 5:
-                customer['delete']()
+                customer['updateaddress']()
                 break
             elif user_choice == 6:
+                customer['delete']()
+                break
+            elif user_choice == 7:
                 display_menu['main']()
             else:
                 print('Please choose a valid option\n')
@@ -305,18 +329,26 @@ display_menu = {
 
 ######################
 #   User Functions   #
-#####################3
+######################
+
+# The following functions are specific to user case scenarios, again the functions are named accordingly
+# Most of the repetitive code will only be commented in the first function
 
 def _create_user():
     while True:
+        # Clears the screen and display the menu title
         os.system('clear')
         print("".center(80, "*"))
         print(" CREATE USER ".center(80, "*"))
         print("".center(80, "*"))
 
+        # Asks the user for the new users username and password
         username = input('Enter new users username: ')
         password = maskpass.askpass(prompt="Enter new users password: ",mask="*")
+        # Hash's the password using bcrypt, this is a one way encryption so the password cannot be decrypted
         password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+        # Inserts the new user into the database
         try:
             cursor.execute('''INSERT INTO user (username, password) VALUES (?, ?)''', (username, password))
             conn.commit()
@@ -325,7 +357,9 @@ def _create_user():
             display_menu['users']()
             break
         except:
+            # If the username already exists, the database will throw an error, this will be caught and the user will be asked to try again
             print(f'Username ({username}) already exists, try again\n')
+            time.sleep(1)
 
 def _login():
     while True:
@@ -339,6 +373,7 @@ def _login():
         password = password.encode('utf-8')
         cursor.execute('''SELECT password FROM user WHERE username = ?''', (username,))
         try:
+            # Checks the password entered against the hashed password in the database
             hashed = cursor.fetchone()[0]
             if bcrypt.checkpw(password, hashed):
                 print('\nSucessfully logged in...')
@@ -347,8 +382,10 @@ def _login():
                 break
             else:
                 print('Login failed, try again\n')
+                time.sleep(1)
         except:
             print('Login failed, try again\n')
+            time.sleep(1)
 
 def _view_user():
     while True:
@@ -359,6 +396,7 @@ def _view_user():
 
         username = input('\nEnter users username: ')
         try:
+            # Selects the user from the database and display the details, grabs all the details from the user table
             cursor.execute('''SELECT * FROM user WHERE username = ?''', (username,))
             customer = cursor.fetchone()
             os.system('clear')
@@ -372,6 +410,7 @@ Password: ********
             break
         except:
             print(f'User ({username}) does not exist, try again\n')
+            time.sleep(1)
 
 def _view_all_users():
     while True:
@@ -380,19 +419,23 @@ def _view_all_users():
         print(" VIEW ALL USERS ".center(80, "*"))
         print("".center(80, "*"))
 
+        # Selects all the users from the database
         cursor.execute('''SELECT * FROM user''')
         users = cursor.fetchall()
         
+        # If there are no users in the database, the users variable will be None, this will be caught and the user will be asked to try again
         if users == None:
             print(f'No users exist, try again\n')
             time.sleep(1)
             display_menu['users']()
             break
 
+        # Displays the users in a table using PrettyTable
         tbl = PrettyTable()
         tbl._title = "All Users"
         tbl.field_names = ["ID", "Username", "Password"]
 
+        # Loops through the users and add them to the pretty table
         for user in users:
             tbl.add_row([user[0], user[1], "********"])
 
@@ -412,6 +455,7 @@ def _update_user():
         collumn = input('What would you like to update? : ')
         value = input('Enter new value: ')
 
+        # If the user tries to update the userid or password, the password will be hashed using bcrypt, and the userid will be ignored
         if collumn == 'userid':
             print('You cannot change the userid\n')
             time.sleep(1)
@@ -419,6 +463,7 @@ def _update_user():
         elif collumn == 'password':
             value = bcrypt.hashpw(value.encode('utf-8'), bcrypt.gensalt())
 
+        # Updates the user in the database
         try:
             cursor.execute(f'''UPDATE user SET {collumn} = ? WHERE username = ?''', (value, username))
             conn.commit()
@@ -428,6 +473,7 @@ def _update_user():
             break
         except:
             print(f'User ({username}) or collum ${collumn} does not exist, try again\n')
+            time.sleep(1)
 
 def _delete_user():
     while True:
@@ -438,7 +484,7 @@ def _delete_user():
 
         username = input('\nEnter username: ')
         try:
-            # Confirm with the user if they would like to delete, if not go back to menu
+            # Confirms with the user if they would like to delete, if not go back to menu
             if input(f'\n[IMPORTANT] Do you wish to delete this user ({username})? (y/n): ').lower() == 'n':
                 display_menu['users']()
                 break
@@ -451,7 +497,9 @@ def _delete_user():
             break
         except:
             print(f'User ({username}) does not exist, try again\n')
+            time.sleep(1)
 
+# Dictionary of user functions
 user = {
     'create': _create_user,
     'login': _login,
@@ -465,29 +513,50 @@ user = {
 #   Customer Functions   #
 ##########################
 
+# The following functions are specific to customer case scenarios, again the functions are named accordingly
+# Most of the repetitive code will only be commented in the first function
+
 def _create_customer():
     while True:
+        # Clears the screen and display the menu title
         os.system('clear')
         print("".center(80, "*"))
         print(" CREATE CUSTOMER ".center(80, "*"))
         print("".center(80, "*"))
 
+        # Asks for customer details
         forename = input('\nEnter new customers forename: ')
         lastname = input('Enter new customers last name: ')
         dob = input('Enter new customers date of birth (MM-DD-YYYY): ')
+
+        # Asks for address details
+        print('''
+Please enter the following address details:
+        ''')
+        addressline1 = input('Address Line 1: ')
+        streetnumber = input('Street Number: ')
+        region = input('Region: ')
+        country = input('Country: ')
+        postcode = input('Postcode: ')
+
+        # Creates a username from the first digit of the forename, the entire surname and the last two digits of the year of dob
         username = forename[0] + lastname + dob[-2:]
         username = username.lower()
         
+        # Inserts the address and customer into the database
         try:
-            cursor.execute('''INSERT INTO customer (customerusername, forename, surname, dob) VALUES (?, ?, ?, ?)''', (username, forename, lastname, dob))
+            cursor.execute('''INSERT INTO address (firstline, streetnumber, region, country, postcode) VALUES (?, ?, ?, ?, ?)''', (addressline1, streetnumber, region, country, postcode))
+            conn.commit()
+            cursor.execute('''INSERT INTO customer (customerusername, forename, surname, dob, addressid) VALUES (?, ?, ?, ?, ?)''', (username, forename, lastname, dob, cursor.lastrowid))
             conn.commit()
             print(f'\nCustomer ({username}) created successfully with id {cursor.lastrowid}')
             time.sleep(1)
             display_menu['customers']()
             break
         except Exception as err:
-            time.sleep(1)
+            print(err)
             print(f'Username ({username}) already exists, try again\n')
+            time.sleep(1)
 
 def _view_customer():
     while True:
@@ -498,9 +567,17 @@ def _view_customer():
 
         customerusername = input('\nEnter customer username: ')
         try:
-            cursor.execute('''SELECT * FROM customer WHERE customerusername = ?''', (customerusername,))
+            # Selects the customer from the database, and join the address table to get the full address
+            cursor.execute('''
+            SELECT Customer.customerid, Customer.customerusername, Customer.forename, Customer.surname, Customer.dob, Address.firstline, Address.region, Address.country, Address.postcode
+            FROM Customer
+            JOIN Address ON Customer.addressid = Address.addressid
+            WHERE Customer.customerusername = ?
+            ''', (customerusername,))
             customer = cursor.fetchone()
             os.system('clear')
+
+            # Prints the customer details, including Full Address
             print(f'''
 Customer ID: {customer[0]}
 Customer Username: {customer[1]}
@@ -508,11 +585,15 @@ Forename: {customer[2]}
 Surname: {customer[3]}
 Date of Birth: {customer[4]}
             ''')
+            print(f'Full Address: {customer[5]}, {customer[6]}, {customer[7]}, {customer[8]}')
+
             input('\nPress any button to continue...')
             display_menu['customers']()
             break
-        except:
+        except Exception as err:
+            print(err)
             print(f'Customer ({customerusername}) does not exist, try again\n')
+            time.sleep(1)
 
 def _view_all_customers():
     while True:
@@ -521,7 +602,12 @@ def _view_all_customers():
         print(" VIEW ALL CUSTOMERS ".center(80, "*"))
         print("".center(80, "*"))
 
-        cursor.execute('''SELECT * FROM customer''')
+        # Selects all customers from the database, and join the address table to get the full address
+        cursor.execute('''
+        SELECT Customer.customerid, Customer.customerusername, Customer.forename, Customer.surname, Customer.dob, Address.firstline, Address.region, Address.country, Address.postcode
+        FROM Customer
+        JOIN Address ON Customer.addressid = Address.addressid
+        ''')
         customers = cursor.fetchall()
 
         if customers == None:
@@ -529,18 +615,50 @@ def _view_all_customers():
             time.sleep(1)
             display_menu['customers']()
             break
-        
+
+        # Prints the customer details, including Full Address, using PrettyTable
         tbl = PrettyTable()
         tbl._title = "All Customers"
-        tbl.field_names = ["ID", "Username", "Forename", "Surname", "Date of Birth"]
+        tbl.field_names = ["ID", "Username", "Forename", "Surname", "Date of Birth", "Full Address"]
 
+        # Loops through the customers and add them to the pretty table
         for customer in customers:
-            tbl.add_row([customer[0], customer[1], customer[2], customer[3], customer[4]])
+            tbl.add_row([customer[0], customer[1], customer[2], customer[3], customer[4], f'{customer[5]}, {customer[6]}, {customer[7]}, {customer[8]}'])
 
         print(f'\n{tbl}')
         
         input('\nPress any button to continue...')
         display_menu['customers']()
+
+def _update_customer_address():
+    while True:
+        os.system('clear')
+        print("".center(80, "*"))
+        print(" UPDATE CUSTOMER ADDRESS ".center(80, "*"))
+        print("".center(80, "*"))
+
+        customerusername = input('\nEnter customer username: ')
+        collumn = input('What would you like to update? : ')
+        value = input('Enter new value: ')
+
+        # Checks if the user is trying to change the addressid, if they are then ignore it
+        if collumn == 'addressid':
+            print('You cannot change the addressid\n')
+            time.sleep(1)
+            continue
+
+        # Updates the address in the database
+        try:
+            cursor.execute(f'''UPDATE address SET {collumn} = ? WHERE addressid = (SELECT addressid FROM customer WHERE customerusername = ?)''', (value, customerusername))
+            conn.commit()
+            print(f'\nCustomer ({customerusername}) address updated successfully')
+            time.sleep(1)
+            display_menu['customers']()
+            break
+        except Exception as err:
+            print(err)
+            print(f'Customer ({customerusername}) does not exist, try again\n')
+            time.sleep(1)
 
 def _update_customer():
     while True:
@@ -553,6 +671,7 @@ def _update_customer():
         collumn = input('What would you like to update? : ')
         value = input('Enter new value: ')
 
+        # Checks if the user is trying to change the customerid, if they are then ignore it. Also check if the date is in the correct format
         if collumn == 'dob':
             try:
                 datetime.datetime.strptime(value, '%m-%d-%Y')
@@ -565,6 +684,7 @@ def _update_customer():
             time.sleep(1)
             continue
 
+        # Updates the customer in the database
         try:
             cursor.execute(f'''UPDATE customer SET {collumn} = ? WHERE customerusername = ?''', (value, customerusername))
             conn.commit()
@@ -574,6 +694,7 @@ def _update_customer():
             break
         except:
             print(f'Customer ({customerusername}) or collum ${collumn} does not exist, try again\n')
+            time.sleep(1)
 
 def _delete_customer():
     while True:
@@ -583,8 +704,10 @@ def _delete_customer():
         print("".center(80, "*"))
 
         customerusername = input('\nEnter customer username: ')
+
+        # Deletes the customer from the database
         try:
-            # Confirm with the user if they would like to delete, if not go back to menu
+            # Confirms with the user if they would like to delete, if not go back to menu
             if input(f'\n[IMPORTANT] Do you wish to delete this customer ({customerusername})? (y/n): ').lower() == 'n':
                 display_menu['accounts']()
                 break
@@ -599,25 +722,32 @@ def _delete_customer():
             print(f'Customer ({customerusername}) does not exist, try again\n')
             time.sleep(1)
             
+# Dictionary of functions for the customer menu
 customer = {
     'create': _create_customer,
     'view': _view_customer,
     'update': _update_customer,
     'viewall': _view_all_customers,
-    'delete': _delete_customer
+    'delete': _delete_customer,
+    'updateaddress': _update_customer_address
 }
 
 #########################
 #   Account Functions   #
 #########################
 
+# The following functions are specific to account case scenarios, again the functions are named accordingly
+# Most of the repetitive code will only be commented in the first function
+
 def _create_account():
     while True:
+        # Clears the screen and print the menu title
         os.system('clear')
         print("".center(80, "*"))
         print(" CREATE ACCOUNT ".center(80, "*"))
         print("".center(80, "*"))
 
+        # Gets the customer username and check if it exists
         username = input('\nEnter holder (customer) username: ')
 
         cursor.execute('''SELECT customerid FROM customer WHERE customerusername = ?''', (username,))
@@ -629,6 +759,7 @@ def _create_account():
             continue
         customerid = customerid[0]
 
+        # Gets the current date (open date) and insert the account into the database
         opendate = datetime.datetime.now().strftime('%d-%m-%Y')
 
         try:
@@ -651,10 +782,12 @@ def _view_account():
         print("".center(80, "*"))
 
         accountid = input('\nEnter Account ID: ')
+
+        # Gets the account from the database and print it, along with the customer username
         try:
-            cursor.execute('''SELECT account.accountid, account.balance, account.opendate, account.closedate, account.status, customer.customerusername FROM account 
-            JOIN customer 
-            ON account.customerid = customer.customerid 
+            cursor.execute('''SELECT account.accountid, account.balance, account.opendate, account.closedate, account.status, customer.customerusername 
+            FROM account 
+            JOIN customer ON account.customerid = customer.customerid 
             WHERE accountid = ?''', (accountid,))
             account = cursor.fetchone()
             os.system('clear')
@@ -681,17 +814,20 @@ def _view_all_accounts():
         print(" VIEW ALL ACCOUNTS ".center(80, "*"))
         print("".center(80, "*"))
 
-        cursor.execute('''SELECT account.accountid, account.balance, account.opendate, account.closedate, account.status, customer.customerusername FROM account 
-        JOIN customer 
-        ON account.customerid = customer.customerid''')
+        # Gets all the accounts from the database and print them, along with the customer username
+        cursor.execute('''SELECT account.accountid, account.balance, account.opendate, account.closedate, account.status, customer.customerusername 
+        FROM account 
+        JOIN customer ON account.customerid = customer.customerid''')
         accounts = cursor.fetchall()
         
+        # Checks if there are any accounts, if not go back to the menu
         if accounts == None:
             print(f'No accounts exist, try again\n')
             time.sleep(1)
             display_menu['accounts']()
             break
 
+        # Creates a table and add the accounts to it, using PrettyTable
         tbl = PrettyTable()
         tbl._title = "All Accounts"
         tbl.field_names = ["ID", "Balance", "Open Date", "Closed Date", "Status", "Account Holder"]
@@ -715,6 +851,7 @@ def _update_account():
         collumn = input('What would you like to update? : ')
         value = input('Enter new value: ')
 
+        # Checks if user is trying to change accountid, if so then ignore it. Also checks if the date is in the correct format
         if collumn == 'opendate':
             try:
                 datetime.datetime.strptime(value, '%m-%d-%Y')
@@ -734,6 +871,7 @@ def _update_account():
             time.sleep(1)
             continue
 
+        # Updates the account in the database
         try:
             cursor.execute(f'''UPDATE account SET {collumn} = ? WHERE accountid = ?''', (value, accountid))
             conn.commit()
@@ -743,6 +881,7 @@ def _update_account():
             break
         except:
             print(f'Account ({accountid}) or collum ${collumn} does not exist, try again\n')
+            time.sleep(1)
 
 def _close_account():
     while True:
@@ -755,11 +894,12 @@ def _close_account():
         closedate = datetime.datetime.now().strftime('%d-%m-%Y')
 
         try:
-            # Confirm with the user if they would like to delete, if not go back to menu
+            # Confirms with the user if they would like to delete, if not go back to menu
             if input(f'\n[IMPORTANT] Do you wish to close this account ({accountid})? (y/n): ').lower() == 'n':
                 display_menu['accounts']()
                 break
 
+            # Instead of using DELETE, we will just mark the account as closed for auditing purposes
             cursor.execute('''UPDATE account SET status = ?, closedate = ? WHERE accountid = ?''', ('INACTIVE', closedate, accountid,))
             conn.commit()
             print(f'\nAccount ({accountid}) has been closed successfully\n ')
@@ -771,6 +911,7 @@ def _close_account():
             time.sleep(1)
 
 def _update_balance(accountid, amount):
+    # Updates the balance of the account, used for transactions
     try:
         cursor.execute('''UPDATE account SET balance = balance + ? WHERE accountid = ?''', (amount, accountid,))
         conn.commit()
@@ -780,6 +921,7 @@ def _update_balance(accountid, amount):
         time.sleep(1)
         return False
 
+# Dictionary of account functions
 account = {
     'create': _create_account,
     'view': _view_account,
@@ -793,19 +935,25 @@ account = {
 #   Transaction Functions   #
 #############################
 
+# The following functions are specific to transaction case scenarios, again the functions are named accordingly
+# Most of the repetitive code will only be commented in the first function
+
 def _create_transaction():
     while True:
+        # Clears the screen and prints the title
         os.system('clear')
         print("".center(80, "*"))
         print(" CREATE TRANSACTION ".center(80, "*"))
         print("".center(80, "*"))
 
+        # Gets the account id and amount from the user, also gets the reference and transaction type
         accountid = input('\nEnter account id: ')
         amount = input('Enter amount (- if this is a debit transaction, + if this is a credit transaction): ')
         reference = input('Enter reference: ')
         transactiontype = 'DEBIT' if float(amount) < 0 else 'CREDIT'
         transactiondate = datetime.datetime.now().strftime('%d-%m-%Y')
 
+        # Updates the account balance, if it successfuly does that then inserts the transaction into transact
         try:
             if not account['updatebal'](accountid, amount):
                 print('Transaction failed, please try again\n')
@@ -830,16 +978,18 @@ def _view_account_transactions():
 
         accountid = input('\nEnter account id: ')
 
+        # Gets all the transactions for the account and prints them out
         try:
             cursor.execute('''SELECT * FROM transact WHERE accountid = ?''', (accountid,))
             transactions = cursor.fetchall()
             os.system('clear')
 
-            ## use pretty tables
+            # Uses PrettyTable to print out transaction information
             tbl = PrettyTable()
             tbl._title = f'Account ({accountid}) Transactions'
             tbl.field_names = ["ID", "Account ID", "Amount", "Type", "Date", "Reference"]
 
+            # Loops through all transactions, adding them to the table
             for transaction in transactions:
                 tbl.add_row([transaction[0], transaction[4], transaction[1], transaction[2], transaction[3], transaction[4]])
 
@@ -858,16 +1008,18 @@ def _view_all_transactions():
         print(" VIEW ALL TRANSACTIONS ".center(80, "*"))
         print("".center(80, "*"))
 
+        # Gets all transactions and prints them out
         try:
             cursor.execute('''SELECT * FROM transact''')
             transactions = cursor.fetchall()
             os.system('clear')
 
-            ## use pretty tables
+            # Again, uses PrettyTable to print out transaction information
             tbl = PrettyTable()
             tbl._title = f'All Transactions'
             tbl.field_names = ["ID", "Account ID", "Amount", "Type", "Date", "Reference"]
 
+            # Loops through all transactions, adding them to the table
             for transaction in transactions:
                 tbl.add_row([transaction[0], transaction[4], transaction[1], transaction[2], transaction[3], transaction[4]])
 
@@ -886,19 +1038,22 @@ def _view_transaction_by_date():
         print(" VIEW TRANSACTION BY DATE ".center(80, "*"))
         print("".center(80, "*"))
 
+        # Gets the start and end date from the user
         startdate = input('\nEnter start date (DD-MM-YYYY): ')
         enddate = input('Enter end date (DD-MM-YYYY): ')
 
+        # Gets all transactions between the start and end date and prints them out
         try:
             cursor.execute('''SELECT * FROM transact WHERE date BETWEEN ? AND ?''', (startdate, enddate))
             transactions = cursor.fetchall()
             os.system('clear')
 
-            ## use pretty tables
+            # Once again, uses PrettyTable to print out transaction information
             tbl = PrettyTable()
             tbl._title = f'Transactions between {startdate} and {enddate}'
             tbl.field_names = ["ID", "Account ID", "Amount", "Type", "Date", "Reference"]
 
+            # Loops through all transactions, adding them to the table
             for transaction in transactions:
                 tbl.add_row([transaction[0], transaction[4], transaction[1], transaction[2], transaction[3], transaction[4]])
 
@@ -919,10 +1074,11 @@ def _update_transaction():
 
         transactionid = input('\nEnter transaction id: ')
 
-        # get transaction accountid
+        # Gets the transactionid
         cursor.execute('''SELECT * FROM transact WHERE transactionid = ?''', (transactionid,))
         transaction = cursor.fetchone()
 
+        # Updates the account balance based off wether this transaction is CREDIT or DEBIT
         if transaction[2] == 'CREDIT':
             if not account['updatebal'](transaction[4], -abs(transaction[1])):
                 print('Transaction failed, please try again\n')
@@ -936,14 +1092,18 @@ def _update_transaction():
             time.sleep(1)
             display_menu['transactions']()
 
+        # Gets the new amount and updates the transaction
         try:
+            # Gets the new amount, along with it's type
             amount = float(input('Enter amount (- if this is a debit transaction, + if this is a credit transaction): '))
             transactiontype = 'DEBIT' if float(amount) < 0 else 'CREDIT'
             
+            # Updates the previous transaction
             cursor.execute('''UPDATE transact SET type = ? WHERE transactionid = ?''', ('UPDATED', transactionid))
             if not account['updatebal'](transaction[4], amount):
                 print('Transaction failed, please try again\n')
                 break
+            # Inserts a new transaction with the new amount
             cursor.execute('''INSERT INTO transact (type, amount, date, accountid, reference) VALUES(?, ?, ?, ?, ?)''', (transactiontype, amount, datetime.datetime.now().strftime('%d-%m-%Y'), transaction[4], f'Updated transaction {transactionid}'))
             conn.commit()
             print(f'\nTransaction ({transactionid}) updated successfully\n')
@@ -964,14 +1124,17 @@ def _revoke_transaction():
 
         transactionid = input('\nEnter transaction id: ')
 
+        # Gets the transactionid
         cursor.execute('''SELECT type, amount, accountid FROM transact WHERE transactionid = ?''', (transactionid,))
         transaction = cursor.fetchone()
 
+        # If there is no transaction, it will print out an error message
         if transaction is None:
             print(f'Transaction ({transactionid}) does not exist, try again\n')
             time.sleep(1)
             continue
         
+        # Update the amount  based off wether this transaction is CREDIT or DEBIT
         transactiontype = transaction[0]
         if transactiontype == 'DEBIT':
             amount = abs(transaction[1])
@@ -979,12 +1142,13 @@ def _revoke_transaction():
         elif transactiontype == 'CREDIT':
             amount = -abs(transaction[1])
             transactiontype = 'DEBIT'
-        else:
+        else: # If the transaction has already been updated or revoked, it will print out an error message
             print(f'Transaction ({transactionid}) could not be revoked.\n')
             time.sleep(1)
             display_menu['transactions']()
             break
 
+        # Updates the account balance and the transaction, along with inserting a new transaction
         try:
             if not account['updatebal'](transaction[2], amount):
                 print('Transaction failed, please try again\n')
@@ -1001,6 +1165,7 @@ def _revoke_transaction():
             print(f'Error occured: {err}\n')
             time.sleep(1)
 
+# Dictionary of all the transactional functions
 transaction = {
     'create': _create_transaction,
     'viewaccount': _view_account_transactions,
