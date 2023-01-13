@@ -527,7 +527,7 @@ def _create_customer():
         # Asks for customer details
         forename = input('\nEnter new customers forename: ')
         lastname = input('Enter new customers last name: ')
-        dob = input('Enter new customers date of birth (MM-DD-YYYY): ')
+        dob = input('Enter new customers date of birth (DD-MM-YYYY): ')
 
         # Asks for address details
         print('''
@@ -676,7 +676,7 @@ def _update_customer():
             try:
                 datetime.datetime.strptime(value, '%m-%d-%Y')
             except ValueError:
-                print('Incorrect date format, should be MM-DD-YYYY\n')
+                print('Incorrect date format, should be DD-MM-YYYY\n')
                 time.sleep(1)
                 continue
         if collumn == 'customerid':
@@ -856,14 +856,14 @@ def _update_account():
             try:
                 datetime.datetime.strptime(value, '%m-%d-%Y')
             except ValueError:
-                print('Incorrect date format, should be MM-DD-YYYY\n')
+                print('Incorrect date format, should be DD-MM-YYYY\n')
                 time.sleep(1)
                 continue
         if collumn == 'closedate':
             try:
                 datetime.datetime.strptime(value, '%m-%d-%Y')
             except ValueError:
-                print('Incorrect date format, should be MM-DD-YYYY\n')
+                print('Incorrect date format, should be DD-MM-YYYY\n')
                 time.sleep(1)
                 continue
         if collumn == 'accountid':
