@@ -1,0 +1,4 @@
+maskpass==0.3.7
+prettytable==3.6.0
+python_bcrypt==0.3.2
+termcolor==2.2.0
