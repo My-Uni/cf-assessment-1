@@ -89,7 +89,7 @@ def create_tables():
 
 def _main_menu():
     # Clears the screen & display the menu title
-    os.system('clear')
+    os.system('cls')
     print(colored("".center(80, "*"), 'yellow'))
     print(colored(" MAIN MENU ".center(80, "*"), 'yellow'))
     print(colored("".center(80, "*"), 'yellow'))
@@ -129,7 +129,7 @@ def _main_menu():
                 user['login']()
                 break
             elif user_choice == 6:
-                os.system('clear')
+                os.system('cls')
                 print('Exiting Program...')
                 os._exit(0)
             else:
@@ -138,7 +138,7 @@ def _main_menu():
             print('Please choose a valid option\n')
 
 def _customers_menu():
-    os.system('clear')
+    os.system('cls')
     print(colored("".center(80, "*"), 'yellow'))
     print(colored(" CUSTOMERS ".center(80, "*"), 'yellow'))
     print(colored("".center(80, "*"), 'yellow'))
@@ -185,7 +185,7 @@ def _customers_menu():
             print('Please choose a valid option\n')
 
 def _users_menu():
-    os.system('clear')
+    os.system('cls')
     print(colored("".center(80, "*"), 'yellow'))
     print(colored(" USERS ".center(80, "*"), 'yellow'))
     print(colored("".center(80, "*"), 'yellow'))
@@ -229,7 +229,7 @@ def _users_menu():
             print('Please choose a valid option\n')
 
 def _accounts_menu():
-    os.system('clear')
+    os.system('cls')
     print(colored("".center(80, "*"), 'yellow'))
     print(colored(" ACCOUNTS ".center(80, "*"), 'yellow'))
     print(colored("".center(80, "*"), 'yellow'))
@@ -273,7 +273,7 @@ def _accounts_menu():
             print('Please choose a valid option\n')
 
 def _transactions_menu():
-    os.system('clear')
+    os.system('cls')
     print(colored("".center(80, "*"), 'yellow'))
     print(colored(" TRANSACTIONS ".center(80, "*"), 'yellow'))
     print(colored("".center(80, "*"), 'yellow'))
@@ -338,7 +338,7 @@ display_menu = {
 def _create_user():
     while True:
         # Clears the screen and display the menu title
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" CREATE USER ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -364,7 +364,7 @@ def _create_user():
 
 def _login():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'magenta'))
         print(colored(" SYSTEM LOGIN ".center(80, "*"), 'magenta'))
         print(colored("".center(80, "*"), 'magenta'))
@@ -390,7 +390,7 @@ def _login():
 
 def _view_user():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" VIEW USER ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -400,7 +400,7 @@ def _view_user():
             # Selects the user from the database and display the details, grabs all the details from the user table
             cursor.execute('''SELECT * FROM user WHERE username = ?''', (username,))
             customer = cursor.fetchone()
-            os.system('clear')
+            os.system('cls')
             print(colored("".center(80, "*"), 'cyan'))
             print(colored(" VIEW USER ".center(80, "*"), 'cyan'))
             print(colored("".center(80, "*"), 'cyan'))
@@ -418,7 +418,7 @@ Password: ********
 
 def _view_all_users():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" VIEW ALL USERS ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -450,7 +450,7 @@ def _view_all_users():
         
 def _update_user():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" UPDATE USER ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -481,7 +481,7 @@ def _update_user():
 
 def _delete_user():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" DELETE USER ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -523,7 +523,7 @@ user = {
 def _create_customer():
     while True:
         # Clears the screen and display the menu title
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" CREATE CUSTOMER ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -564,7 +564,7 @@ Please enter the following address details:
 
 def _view_customer():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" VIEW CUSTOMER ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -579,7 +579,7 @@ def _view_customer():
             WHERE Customer.customerusername = ?
             ''', (customerusername,))
             customer = cursor.fetchone()
-            os.system('clear')
+            os.system('cls')
             print(colored("".center(80, "*"), 'cyan'))
             print(colored(" VIEW CUSTOMER ".center(80, "*"), 'cyan'))
             print(colored("".center(80, "*"), 'cyan'))
@@ -604,7 +604,7 @@ Date of Birth: {customer[4]}
 
 def _view_all_customers():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" VIEW ALL CUSTOMERS ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -639,7 +639,7 @@ def _view_all_customers():
 
 def _update_customer_address():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" UPDATE CUSTOMER ADDRESS ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -668,7 +668,7 @@ def _update_customer_address():
 
 def _update_customer():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" UPDATE CUSTOMER ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -704,7 +704,7 @@ def _update_customer():
 
 def _delete_customer():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" DELETE CUSTOMER ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -748,7 +748,7 @@ customer = {
 def _create_account():
     while True:
         # Clears the screen and print the menu title
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" CREATE ACCOUNT ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -781,7 +781,7 @@ def _create_account():
 
 def _view_account():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" VIEW ACCOUNT ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -795,7 +795,7 @@ def _view_account():
             JOIN customer ON account.customerid = customer.customerid 
             WHERE accountid = ?''', (accountid,))
             account = cursor.fetchone()
-            os.system('clear')
+            os.system('cls')
             print(colored("".center(80, "*"), 'cyan'))
             print(colored(" VIEW ACCOUNT ".center(80, "*"), 'cyan'))
             print(colored("".center(80, "*"), 'cyan'))
@@ -817,7 +817,7 @@ Account Holder: {account[5]}
 
 def _view_all_accounts():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" VIEW ALL ACCOUNTS ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -850,7 +850,7 @@ def _view_all_accounts():
 
 def _update_account():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" UPDATE ACCOUNT ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -893,7 +893,7 @@ def _update_account():
 
 def _close_account():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" CLOSE ACCOUNT ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -947,7 +947,7 @@ account = {
 def _create_transaction():
     while True:
         # Clears the screen and prints the title
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" CREATE TRANSACTION ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -976,7 +976,7 @@ def _create_transaction():
 
 def _view_account_transactions():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" VIEW ACCOUNT TRANSACTIONS ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -987,7 +987,7 @@ def _view_account_transactions():
         try:
             cursor.execute('''SELECT * FROM transact WHERE accountid = ?''', (accountid,))
             transactions = cursor.fetchall()
-            os.system('clear')
+            os.system('cls')
             print(colored("".center(80, "*"), 'cyan'))
             print(colored(" VIEW ACCOUNT TRANSACTIONS ".center(80, "*"), 'cyan'))
             print(colored("".center(80, "*"), 'cyan'))
@@ -1011,7 +1011,7 @@ def _view_account_transactions():
 
 def _view_all_transactions():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" VIEW ALL TRANSACTIONS ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -1020,7 +1020,7 @@ def _view_all_transactions():
         try:
             cursor.execute('''SELECT * FROM transact''')
             transactions = cursor.fetchall()
-            os.system('clear')
+            os.system('cls')
             print(colored("".center(80, "*"), 'cyan'))
             print(colored(" VIEW ALL TRANSACTIONS ".center(80, "*"), 'cyan'))
             print(colored("".center(80, "*"), 'cyan'))
@@ -1044,7 +1044,7 @@ def _view_all_transactions():
 
 def _view_transaction_by_date():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" VIEW TRANSACTION BY DATE ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -1057,7 +1057,7 @@ def _view_transaction_by_date():
         try:
             cursor.execute('''SELECT * FROM transact WHERE date BETWEEN ? AND ?''', (startdate, enddate))
             transactions = cursor.fetchall()
-            os.system('clear')
+            os.system('cls')
             print(colored("".center(80, "*"), 'cyan'))
             print(colored(" VIEW TRANSACTION BY DATE ".center(80, "*"), 'cyan'))
             print(colored("".center(80, "*"), 'cyan'))
@@ -1081,7 +1081,7 @@ def _view_transaction_by_date():
 
 def _update_transaction():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" UPDATE TRANSACTION ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
@@ -1130,7 +1130,7 @@ def _update_transaction():
 
 def _revoke_transaction():
     while True:
-        os.system('clear')
+        os.system('cls')
         print(colored("".center(80, "*"), 'cyan'))
         print(colored(" REVOKE TRANSACTION ".center(80, "*"), 'cyan'))
         print(colored("".center(80, "*"), 'cyan'))
