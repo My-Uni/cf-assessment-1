@@ -31,51 +31,51 @@ cursor = conn.cursor()
 def create_tables():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS user (
-            userid   INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL UNIQUE,
-            password TEXT NOT NULL
+            userid      INTEGER     PRIMARY KEY AUTOINCREMENT,
+            username    VARCHAR(15) NOT NULL    UNIQUE,
+            password    TEXT        NOT NULL
         );
     ''')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS customer (
-            customerid INTEGER PRIMARY KEY AUTOINCREMENT,
-            customerusername TEXT NOT NULL UNIQUE,
-            forename TEXT NOT NULL,
-            surname TEXT,
-            dob DATE NOT NULL,
-            addressid INTEGER NOT NULL,
+            customerid  INTEGER PRIMARY KEY AUTOINCREMENT,
+            customerusername VARCHAR(15) NOT NULL UNIQUE,
+            forename    VARCHAR(15) NOT NULL,
+            surname     VARCHAR(15) NOT NULL,
+            dob         DATE        NOT NULL,
+            addressid   INTEGER     NOT NULL,
             FOREIGN KEY(addressid) REFERENCES address(addressid)
         );
     ''')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS address (
-            addressid INTEGER PRIMARY KEY AUTOINCREMENT,
-            streetnumber TEXT,
-            firstline TEXT NOT NULL,
-            postcode TEXT NOT NULL,
-            region TEXT NOT NULL,
-            country TEXT NOT NULL
+            addressid   INTEGER PRIMARY KEY AUTOINCREMENT,
+            streetnumber INTEGER,
+            firstline   VARCHAR(30) NOT NULL,
+            postcode    VARCHAR(10) NOT NULL,
+            region      VARCHAR(15) NOT NULL,
+            country     VARCHAR(25) NOT NULL
         );
     ''')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS transact (
             transactionid INTEGER PRIMARY KEY AUTOINCREMENT,
-            amount REAL NOT NULL,
-            type TEXT NOT NULL,
-            date DATE NOT NULL,
-            accountid INTEGER NOT NULL,
-            reference TEXT NULL,
+            amount      REAL        NOT NULL,
+            type        VARCHAR(10) NOT NULL,
+            date        DATE        NOT NULL,
+            accountid   INTEGER     NOT NULL,
+            reference   VARCHAR(25) NULL,
             FOREIGN KEY(accountid) REFERENCES account(accountid)
         );
     ''')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS account (
-            accountid INTEGER PRIMARY KEY AUTOINCREMENT,
-            balance REAL NOT NULL DEFAULT 0.00,
-            opendate DATE NOT NULL,
-            closedate DATE NULL,
-            status TEXT NOT NULL DEFAULT "ACTIVE",
-            customerid INTEGER NOT NULL,
+            accountid   INTEGER     PRIMARY KEY     AUTOINCREMENT,
+            balance     REAL        NOT NULL        DEFAULT 0.00,
+            opendate    DATE        NOT NULL,
+            closedate   DATE        NULL,
+            status      VARCHAR(10) NOT NULL        DEFAULT "ACTIVE",
+            customerid  INTEGER NOT NULL,
             FOREIGN KEY(customerid) REFERENCES customer(customerid)
         );
     ''')
@@ -230,9 +230,9 @@ def _users_menu():
 
 def _accounts_menu():
     os.system('clear')
-    print("".center(80, "*"))
-    print(" ACCOUNTS ".center(80, "*"))
-    print("".center(80, "*"))
+    print(colored("".center(80, "*"), 'yellow'))
+    print(colored(" ACCOUNTS ".center(80, "*"), 'yellow'))
+    print(colored("".center(80, "*"), 'yellow'))
 
     print('''\n
 [1] Create new Account
@@ -352,7 +352,7 @@ def _create_user():
         # Inserts the new user into the database
         try:
             cursor.execute('''INSERT INTO user (username, password) VALUES (?, ?)''', (username, password))
-            conn.commit()
+            print(conn.commit())
             print(f'\nUser ({username}) created sucessfully')
             time.sleep(1)
             display_menu['users']()
@@ -999,7 +999,7 @@ def _view_account_transactions():
 
             # Loops through all transactions, adding them to the table
             for transaction in transactions:
-                tbl.add_row([transaction[0], transaction[4], transaction[1], transaction[2], transaction[3], transaction[4]])
+                tbl.add_row([transaction[0], transaction[4], transaction[1], transaction[2], transaction[3], transaction[5]])
 
             print(f'\n{tbl}')
             input('\nPress any button to continue...')
@@ -1032,7 +1032,7 @@ def _view_all_transactions():
 
             # Loops through all transactions, adding them to the table
             for transaction in transactions:
-                tbl.add_row([transaction[0], transaction[4], transaction[1], transaction[2], transaction[3], transaction[4]])
+                tbl.add_row([transaction[0], transaction[4], transaction[1], transaction[2], transaction[3], transaction[5]])
 
             print(f'\n{tbl}')
             input('\nPress any button to continue...')
